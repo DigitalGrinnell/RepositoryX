@@ -191,15 +191,25 @@ ant generateIndexingXslt
 ant -f fgsconfig-basic.xml
 ```
 
-Ensure that you have added the [DGI GSearch Extensions](https://github.com/discoverygarden/dgi_gsearch_extensions) to GSearch, just follow the directions provided at the preceding link.
-
-Go to the index directory of the GSearch
-
+Ensure that you have added the [DGI GSearch Extensions](https://github.com/discoverygarden/dgi_gsearch_extensions) to GSearch, just follow the directions provided at the preceding link.  Use the following commands as directed (sort of) in the linked repository...
 ```
-cd  $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
+cd /usr/local/fedora
+git clone https://github.com/discoverygarden/dgi_gsearch_extensions.git
+cd dgi_gsearch_extensions
+mvn package
+cp target/gsearch_extensions-*-jar-with-dependencies.jar $CATALINA_HOME/webapps/fedoragsearch/WEB-INF/lib
 ```
-
-Download [foxmlToSolr.xslt](../blob/modular/foxmlToSolr.xslt) and [islandora_transforms](../blob/modular/islandora_transforms) to your current directory.
+Clone the *basic-solr-config* repository and copy *foxmlToSolr.xslt* to your *$FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex* directory.  Repeat for the *islandora_transforms* repository and resulting *islandora_transforms* directory.
+```
+cd /usr/local/fedora
+git clone https://github.com/discoverygarden/basic-solr-config.git
+git clone https://github.com/discoverygarden/islandora_transforms.git
+cd basic-solr-config
+cp -f basic-solr-config/foxmlToSolr.xslt $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
+cp -fr islandora_transforms/ $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
+cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
+chown -R fedora:fedora *
+```
 
 Uncomment the resolver in index.properties
 
@@ -209,9 +219,12 @@ fgsindex.uriResolver    = dk.defxws.fedoragsearch.server.URIResolverImpl
 
 If you keep Fedora or Tomcat in the non-default location, you will need to update each of the *.xslt files to reflect that as well.
 
-Restart Fedora
-
-
+Restart Fedora and Check for Errors
+```
+rm -f /usr/local/fedora/tomcat/logs/catalina.out
+service tomcat restart
+tail -400 /usr/local/fedora/tomcat/logs/catalina.out
+```
 # FAQ
 
 ## Couldn't Access http://<sitename>:8080/fedoragsearch/solr
