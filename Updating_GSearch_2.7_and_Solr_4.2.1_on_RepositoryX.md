@@ -1,20 +1,49 @@
-# Install Solr 4.2.0
+# Updating GSearch 2.7 and Solr 4.2.1 on RepositoryX
+This document is a DG-specific custom copy of https://github.com/discoverygarden/basic-solr-config/wiki/Guide-to-Setting-up-GSearch-2.7-with-Solr-4.2.0.  It includes modifications required to successfully upgrade DG's RepositoryX server in July 2017.  Wherever possible portions of the source document have been retained but may appear in strikethrough text like ~~this~~.
 
-Stop Fedora
+This document assumes that $FEDORA_HOME is defined as /usr/local/fedora.
 
-Download [Solr 4.2.0](http://archive.apache.org/dist/lucene/solr/4.2.0/solr-4.2.0.tgz) to /opt 
+# Clone this Repository
+Clone this repository to the target server so that all files within are readily available at /usr/local/fedora/.configuration.
+```
+cd /usr/local/fedora
+git clone https://github.com/DigitalGrinnell/RepositoryX.git /usr/local/fedora/.configuration
+```
 
-Make a symbolic link to the solr directory such that /opt/solr => /opt/solr-4.2.0
+# Install Solr 4.2.1
+
+Stop Fedora. 
+```
+service tomcat stop
+```
+*Remove all instances of Solr 4.2.0, and any other earlier versions, as well as FedoraGSearch from the server.*
+```
+rm -fr /opt/solr-4.2.0*
+rm -f /opt/solr
+rm -fr /usr/local/fedora/solr
+rm -fr /usr/local/fedora/tomcat/webapps/solr*
+rm -fr /usr/local/fedora/tomcat/webapps/fedoragsearch*
+mv -f /usr/local/fedora/tomcat/work/ /usr/local/fedora/tomcat/.out-of-the-way/    # just a precaution
+```
+
+Download [Solr 4.2.1](http://archive.apache.org/dist/lucene/solr/4.2.1/solr-4.2.1.tgz) to /opt 
+```
+cd /opt
+wget http://archive.apache.org/dist/lucene/solr/4.2.1/solr-4.2.1.tgz
+tar -xvzf solr-4.2.1.tgz
+```
+
+Make a symbolic link to the solr directory such that /opt/solr => /opt/solr-4.2.1
 
 ```
-ln -s /opt/solr-4.2.0 /opt/solr
+ln -s /opt/solr-4.2.1 /opt/solr
 ```
 
 Add the following XML file to $FEDORA_HOME/tomcat/conf/Catalina/localhost/solr.xml
 
 ```XML
 <?xml version="1.0" encoding="UTF-8"?>
-<Context docBase="/opt/solr/dist/solr-4.2.0.war" debug="0" crossContext="true">
+<Context docBase="/opt/solr/dist/solr-4.2.1.war" debug="0" crossContext="true">
   <Environment name="solr/home" type="java.lang.String" value="/usr/local/fedora/solr" override="true"/>
 </Context>
 ```
@@ -22,24 +51,22 @@ Add the following XML file to $FEDORA_HOME/tomcat/conf/Catalina/localhost/solr.x
 Copy over the default configuration files for "collection1" from /opt/solr/example/solr/collection1 to $FEDORA_HOME/solr/collection1
 
 ```
+mkdir $FEDORA_HOME/solr
 cp -r /opt/solr/example/solr/collection1 $FEDORA_HOME/solr/collection1
 ```
 
 # Update the solr schema.xml
 
-Goto to your solr conf directory.
+Goto to your solr conf directory and backup schema.xml in case any problems occur.  Then replace schema.xml with the schema.xml file provided in this GitHub repository.
 
 ```
 cd $FEDORA_HOME/solr/collection1/conf
-```
-
-First backup the existing Schema, for reference incase any problems occur.
-
-```
 cp schema.xml schema.xml.bak 
+rm -f schema.xml
+cp -f /usr/local/fedora/.configuration/schema.xml .
 ```
 
-Use the provided schema file [schema.xml](../blob/modular/conf/schema.xml)
+~~Use the provided schema file [schema.xml](../blob/modular/conf/schema.xml)~~
 
 ### Some potential problems with using the basic-solr-config schema.xml
 
@@ -83,14 +110,9 @@ Also Added the following field to the schema.
 ```
 
 # Update the solrconfig.xml
-Goto to your solr conf directory.
-
+Goto to your solr conf directory and backup the existing solrconfig.xml just in case.  
 ```
 cd $FEDORA_HOME/solr/collection1/conf
-```
-First backup the existing Schema, for reference incase any problems occur.
-
-```
 cp solrconfig.xml solrconfig.xml.bak 
 ```
 Tell solr that we want changes to be flushed and make changes available right away
@@ -110,22 +132,33 @@ Update the /select requestHandler to tell solr about some of the fun things we w
 sed -i '782i<str name="fl">*</str>' solrconfig.xml
 sed -i '783i<str name="q.alt">*:*</str>' solrconfig.xml
 sed -i '784i<str name="qf">dc.title^5 dc.subject^3 dc.description^3 dc.creator^3 dc.contributor^3 dc.type^1 dc.relation^1 dc.publisher^1 mods_identifier_local_ms^3 ds.WARC_FILTER^1 text_nodes_HOCR_hlt^1 mods_subject_hierarchicalGeographic_region_ms^3 mods_identifier_hdl_mt^3 dc.identifier^3 PID^0.5 catch_all_fields_mt^0.1</str>' solrconfig.xml
+
+# Change Solr File Ownership to Avoid File Permissions Issues During Restart
 ```
+chown -R fedora:fedora /usr/local/fedora/solr
+chown -R fedora:fedora /usr/local/fedora .out-of-the-way
+chown -R fedora:fedora /usr/local/fedora .configuration
+``````
+
 # Install GSearch 2.7
 
-Start Fedora
-
-Place the GSearch 2.7 [fedoragsearch.war](http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip) file in $FEDORA_HOME/tomcat/webapps
-
-Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig.
+Place the GSearch 2.7 [fedoragsearch.war](http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip) file in $FEDORA_HOME/tomcat/webapps.  Unzip it, rename the resulting folder, and reset file ownership.
+```
+cd $FEDORA_HOME/tomcat/webapps
+wget http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip
+unzip fedoragsearch-2.7.zip
+mv -f fedoragsearch-2.7/ fedoragsearch/
+chown -R fedora:fedora *
+```
+Start Fedora.
+```
+service tomcat start
+tail -400 /usr/local/fedora/tomcat/logs/catalina.out
+```
+Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig and backup the basic properties file, for reference in case any problems occur.
 
 ```
 cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig
-```
-
-Backup the basic properties file, for reference incase any problems occur.
-
-```
 cp fgsconfig-basic.properties fgsconfig-basic.properties.bak 
 ```
 
@@ -133,8 +166,8 @@ Modify the basic properties file as needed be sure that the following properties
 __&lt;path to fedora home&gt;__ should be the absolute path to your $FEDORA_HOME directory typically __/usr/local/fedora__.
 
 ```
-configDisplayName=configDemoOnSolr
-local.FEDORA_HOME=<path to fedora home> 
+configDisplayName=configDGOnSolr
+local.FEDORA_HOME=/usr/local/fedora 
 indexEngine=Solr
 indexDir=${local.FEDORA_HOME}/solr/collection1/data/index
 indexBase=http://localhost:8080/solr 
