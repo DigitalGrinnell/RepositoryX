@@ -151,22 +151,28 @@ tail -400 /usr/local/fedora/tomcat/logs/catalina.out
 
 # Install GSearch 2.7
 
-Place the GSearch 2.7 [fedoragsearch.war](http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip) file in $FEDORA_HOME/tomcat/webapps.  Unzip it, rename the resulting folder, and reset file ownership.
+Place the GSearch 2.7 [fedoragsearch.war](http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip) file in $FEDORA_HOME/tomcat/webapps.  Unzip it, rename the resulting folder, and reset file ownership.  Then restart Tomcat to expand the fedoragsearch.war file and check catalina.out for errors.
 ```
 cd $FEDORA_HOME/tomcat/webapps
 wget http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip
 unzip fedoragsearch-2.7.zip
-mv -f fedoragsearch-2.7/ fedoragsearch/
-chown -R fedora:fedora *
+mv -f fedoragsearch-2.7/fedoragsearch.war .
+rm -fr fedoragsearch-2.7*
+chown -R fedora:fedora fedoragsearch*
+rm -f /usr/local/fedora/tomcat/logs/catalina.out
+service tomcat restart
+tail -400 /usr/local/fedora/tomcat/logs/catalina.out
 ```
-Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig and backup the basic properties file, for reference in case any problems occur.
+Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig and backup the basic properties file, for reference in case any problems occur.  Copy the contents of the *configDemoOnSolr* directory to a new directory named *configDGOnSolr* and change file ownership to avoid file permissions problems.
 
 ```
 cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig
 cp fgsconfig-basic.properties fgsconfig-basic.properties.bak 
+cp -fr configDemoOnSolr/ configDGOnSolr/
+chown -R fedora:fedora *
 ```
 
-Modify the basic properties file as needed be sure that the following properties are set correctly:
+Modify the basic properties file (fgsconfig-basic.properties) as needed be sure that the following properties are set correctly:
 __&lt;path to fedora home&gt;__ should be the absolute path to your $FEDORA_HOME directory typically __/usr/local/fedora__.
 
 ```
