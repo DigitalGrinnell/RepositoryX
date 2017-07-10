@@ -1,0 +1,13 @@
+The CSS file to edit to get the wider Solr drop-down list is "chosen.css" at
+
+/opt/fedora/tomcat/webapps/solr/css/chosen.css
+
+Add a width property right after "left: 0;" as follows
+
+.chzn-container .chzn-drop (
+...
+left: 0;
+width: 1000px !important;
+...
+}
+
