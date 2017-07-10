@@ -68,7 +68,8 @@ cp -f /usr/local/fedora/.configuration/schema.xml .
 
 ~~Use the provided schema file [schema.xml](../blob/modular/conf/schema.xml)~~
 
-### Some potential problems with using the basic-solr-config schema.xml
+### Some potential problems with using the basic-solr-config schema.xml  
+*Note: These issues have already been addressed in the copy of schema.xml found in this repository!*
 
 #### Error loading class 'solr.EnglishPorterFilterFactory'
 
@@ -132,13 +133,21 @@ Update the /select requestHandler to tell solr about some of the fun things we w
 sed -i '782i<str name="fl">*</str>' solrconfig.xml
 sed -i '783i<str name="q.alt">*:*</str>' solrconfig.xml
 sed -i '784i<str name="qf">dc.title^5 dc.subject^3 dc.description^3 dc.creator^3 dc.contributor^3 dc.type^1 dc.relation^1 dc.publisher^1 mods_identifier_local_ms^3 ds.WARC_FILTER^1 text_nodes_HOCR_hlt^1 mods_subject_hierarchicalGeographic_region_ms^3 mods_identifier_hdl_mt^3 dc.identifier^3 PID^0.5 catch_all_fields_mt^0.1</str>' solrconfig.xml
+```
 
 # Change Solr File Ownership to Avoid File Permissions Issues During Restart
 ```
 chown -R fedora:fedora /usr/local/fedora/solr
 chown -R fedora:fedora /usr/local/fedora .out-of-the-way
 chown -R fedora:fedora /usr/local/fedora .configuration
-``````
+```
+
+# Start Fedora and Check for Errors
+```
+mv -f /usr/local/fedora/tomcat/logs/catalina.out /usr/local/fedora/tomcat/logs/catalina.out.bak
+service tomcat start
+tail -400 /usr/local/fedora/tomcat/logs/catalina.out
+```
 
 # Install GSearch 2.7
 
@@ -149,11 +158,6 @@ wget http://downloads.sourceforge.net/fedora-commons/fedoragsearch-2.7.zip
 unzip fedoragsearch-2.7.zip
 mv -f fedoragsearch-2.7/ fedoragsearch/
 chown -R fedora:fedora *
-```
-Start Fedora.
-```
-service tomcat start
-tail -400 /usr/local/fedora/tomcat/logs/catalina.out
 ```
 Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig and backup the basic properties file, for reference in case any problems occur.
 
