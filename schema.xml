@@ -369,7 +369,8 @@
 
    <!-- MAM adding the following as a work-around for our BCE dates sorting issue -->
    <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/>
-   <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>
+   <!-- <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>   This does not play nicely with badly formatted dates that cannot be converted to a signed int! -->
+   <field name="mods_originInfo_dateCreated_sort" type="sortableIndexYear" indexed="true" stored="true" multiValued="false"/>
 
  </fields>
 
