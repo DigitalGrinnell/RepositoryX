@@ -226,12 +226,15 @@
     </fieldType>
 
     <!-- MAM additions here.  Aim is to produce an index_date field guaranteed to contain only a 4-digit integer preceeded by an optional minus sign. -->
-    <fieldType name="sortableIndexYear" class="solr.SortableIntField">
+    <fieldType name="sortableIndexYear" class="solr.TextField">
       <analyzer>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^(-?\d{4})(.*)$" replacement="$1"/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/> 
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <!-- <filter class="solr.PatternReplaceFilterFactory" pattern="^(.*)$" replacement="$1"/> -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(-?\d).*$" replacement="$1"/>
       </analyzer>
-    </fieldType>  
-   
+    </fieldType>
+
     <!-- Only for auto-complete. -->
     <fieldType name="edgedText" class="solr.TextField">
         <analyzer type="index">
@@ -367,10 +370,11 @@
    <field name="dc.description" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
 
-   <!-- MAM adding the following as a work-around for our BCE dates sorting issue -->
-   <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/>
-   <!-- <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>   This does not play nicely with badly formatted dates that cannot be converted to a signed int! -->
-   <field name="mods_originInfo_dateCreated_sort" type="sortableIndexYear" indexed="true" stored="true" multiValued="false"/>
+   <!-- MAM adding the following as a work-around for our BCE dates sorting issue.  The key here is to populate mods_originInfo_dateCreated_sort with a sortable, single-valued, signed integer year  -->
+   <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_temp"/>
+   <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>  
+   <field name="mods_originInfo_dateCreated_temp" type="sortableIndexYear" indexed="false" stored="false" multiValued="false"/> 
+   <copyField source="mods_originInfo_dateCreated_temp" dest="mods_originInfo_dateCreated_sort"/>
 
  </fields>
 
