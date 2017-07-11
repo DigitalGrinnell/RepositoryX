@@ -225,6 +225,13 @@
       </analyzer>
     </fieldType>
 
+    <!-- MAM additions here.  Aim is to produce an index_date field guaranteed to contain only a 4-digit integer preceeded by an optional minus sign. -->
+    <fieldType name="sortableIndexYear" class="solr.SortableIntField">
+      <analyzer>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^(-?\d{4})(.*)$" replacement="$1"/>
+      </analyzer>
+    </fieldType>  
+   
     <!-- Only for auto-complete. -->
     <fieldType name="edgedText" class="solr.TextField">
         <analyzer type="index">
