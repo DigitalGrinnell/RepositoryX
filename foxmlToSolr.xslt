@@ -29,10 +29,10 @@
             exclude-result-prefixes="exts"
   xmlns:encoder="xalan://java.net.URLEncoder"
   xmlns:java="http://xml.apache.org/xalan/java"
-  xmlns:dgi-e="xalan://ca.discoverygarden.gsearch_extensions">
-  <!--  Used for indexing other objects.
+  xmlns:dgi-e="xalan://ca.discoverygarden.gsearch_extensions"
   xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
-  xmlns:xalan="http://xml.apache.org/xalan"> -->
+  xmlns:xalan="http://xml.apache.org/xalan"> 
+  <!--  Two lines above Used for indexing other objects.  Enabling them per https://gist.github.com/daniel-dgi/6001819 -->
 
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
@@ -116,13 +116,14 @@
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/WORKFLOW_to_solr.xslt"/>
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/slurp_all_chemicalML_to_solr.xslt"/>
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/slurp_XML_converted_JSON_to_solr.xslt"/>
-  <!--  Used for indexing other objects.
+  
+  <!--  Used for indexing other objects.  Enabling this per https://gist.github.com/daniel-dgi/6001819 -->
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/library/traverse-graph.xslt"/>
-  -->
+  
   <!-- Used to index the list of collections to which an object belongs.
-    Requires the "traverse-graph.xslt" bit as well.
+    Requires the "traverse-graph.xslt" bit as well.  Enabling this per https://gist.github.com/daniel-dgi/6001819 -->
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/hierarchy.xslt"/>
-  -->
+  
 
   <!-- begin: islandora_solution_pack_oralhistories setup -->
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/or_transcript_solr.xslt"/>
@@ -289,7 +290,8 @@
         reindexing all the descendents whenever indexing an object
         (updating a collection label would be fairly expensive if we blindly
         reindexed). -->
-      <!--
+       
+      <!-- Enabling this per https://gist.github.com/daniel-dgi/6001819 -->
       <xsl:variable name="ancestors">
         <xsl:call-template name="get-ancestors">
           <xsl:with-param name="PID" select="$PID" />
@@ -299,8 +301,7 @@
       <xsl:for-each select="xalan:nodeset($ancestors)//sparql:obj[@uri != concat('info:fedora/', $PID)]">
         <field name="ancestors_ms"><xsl:value-of select="substring-after(@uri, '/')"/></field>
       </xsl:for-each>
-      -->
-
+      
     </doc>
   </xsl:template>
 
