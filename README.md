@@ -14,7 +14,7 @@ git clone https://github.com/DigitalGrinnell/RepositoryX.git /usr/local/fedora/.
 
 # Install Solr 4.2.1
 
-Stop Fedora. 
+Stop Fedora by stopping Tomcat. 
 ```
 service tomcat stop
 ```
@@ -144,9 +144,9 @@ chown -R fedora:fedora /usr/local/fedora .out-of-the-way
 chown -R fedora:fedora /usr/local/fedora .configuration
 ```
 
-# Start Fedora and Check for Errors
+# Start Tomcat and Check for Errors
 ```
-mv -f /usr/local/fedora/tomcat/logs/catalina.out /usr/local/fedora/tomcat/logs/catalina.out.bak
+/usr/sbin/logrotate /etc/logrotate.conf
 service tomcat start
 tail -400 /usr/local/fedora/tomcat/logs/catalina.out
 ```
@@ -221,12 +221,36 @@ fgsindex.uriResolver    = dk.defxws.fedoragsearch.server.URIResolverImpl
 
 If you keep Fedora or Tomcat in the non-default location, you will need to update each of the *.xslt files to reflect that as well.
 
-Restart Fedora and Check for Errors
+# Add Oral Histories XSLT
+The Islandora Oral Histories Solution Pack reqiures an XSLT be added to the *islandora_transforms* directory (that is /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms).  To facilitate this follow the instructions at https://github.com/digitalutsc/islandora_solution_pack_oralhistories/wiki/Configuration:--Basic-Indexing-of-transcripts-in-Solr.  For example...
+
 ```
-rm -f /usr/local/fedora/tomcat/logs/catalina.out
-service tomcat restart
+cd /usr/local/fedora/
+git clone https://github.com/digitalutsc/islandora_solution_pack_oralhistories.git
+cp islandora_solution_pack_oralhistories/xsl/or_transcript_solr.xslt /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms
+cp islandora_solution_pack_oralhistories/xsl/vtt_solr.xslt /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms
+rm -fr /usr/local/fedora/islandora_solution_pack_oralhistories
+chown -R fedora:fedora /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms
+```
+The remaining steps 2 through 4 from the aforementioned document (https://github.com/digitalutsc/islandora_solution_pack_oralhistories/wiki/Configuration:--Basic-Indexing-of-transcripts-in-Solr) have already been taken care of in the *foxmlToSolr.xslt* and *schema.xml* files in this repository.
+
+Restart Tomcat and Check for Errors
+```
+service tomcat stop
+/usr/sbin/logrotate /etc/logrotate.conf
+service tomcat start
 tail -400 /usr/local/fedora/tomcat/logs/catalina.out
 ```
+
+# Clean-up
+```
+cd /usr/local/fedora
+rm -fr basic-solr-config/
+rm -fr dgi_gsearch_extensions/
+rm -fr islandora_transforms/
+rm -fr .out-of-the-way/
+```
+
 # FAQ
 
 ## Couldn't Access http://<sitename>:8080/fedoragsearch/solr
