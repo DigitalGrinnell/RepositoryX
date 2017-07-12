@@ -379,6 +379,10 @@
    <field name="mods_index_year" type="sortableIndexYear" indexed="true" stored="true" multiValued="false"/> 
    <field name="mods_index_text" type="sortableIndexText" indexed="true" stored="true" multiValued="false"/> --> 
 
+   <!-- begin: islandora_solution_pack_oralhistories setup -->
+   <dynamicField name="or_*" type="text" indexed="true" stored="true" multiValued="true"/>
+   <!-- end: islandora_solution_pack_oralhistories setup -->
+
  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness.
