@@ -161,8 +161,8 @@ unzip fedoragsearch-2.7.zip
 mv -f fedoragsearch-2.7/fedoragsearch.war .
 rm -fr fedoragsearch-2.7*
 chown -R fedora:fedora fedoragsearch*
-rm -f /usr/local/fedora/tomcat/logs/catalina.out
-service tomcat restart
+/usr/sbin/logrotate /etc/logrotate.conf
+service tomcat start
 tail -400 /usr/local/fedora/tomcat/logs/catalina.out
 ```
 Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig and backup the basic properties file, for reference in case any problems occur.  Copy the contents of the *configDemoOnSolr* directory to a new directory named *configDGOnSolr* and change file ownership to avoid file permissions problems.
@@ -177,13 +177,16 @@ chown -R fedora:fedora *
 Modify the basic properties file (fgsconfig-basic.properties) as needed be sure that the following properties are set correctly:
 __&lt;path to fedora home&gt;__ should be the absolute path to your $FEDORA_HOME directory typically __/usr/local/fedora__.
 
+Important!!! Modify the fedoraPass variable definition in the live copy of the file ONLY!  Do NOT modify the copy in this GitHub repository!
+
 ```
 configDisplayName=configDGOnSolr
 local.FEDORA_HOME=/usr/local/fedora 
 indexEngine=Solr
 indexDir=${local.FEDORA_HOME}/solr/collection1/data/index
 indexBase=http://localhost:8080/solr 
-indexingDocXslt=foxmlToSolr    
+indexingDocXslt=foxmlToSolr
+fedoraPass=<Place your password in the live copy ONLY!>
 ```
 
 Run the following commands: 
