@@ -123,12 +123,12 @@
   <!-- Used to index the list of collections to which an object belongs.
     Requires the "traverse-graph.xslt" bit as well.  Enabling this per https://gist.github.com/daniel-dgi/6001819 -->
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/hierarchy.xslt"/>
-  
 
   <!-- begin: islandora_solution_pack_oralhistories setup -->
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/or_transcript_solr.xslt"/>
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/vtt_solr.xslt"/>
   <!-- end: islandora_solution_pack_oralhistories setup -->
+  
 
   <!-- Decide which objects to modify the index of -->
   <xsl:template match="/">
@@ -244,17 +244,16 @@
               <xsl:with-param name="content" select="dgi-e:JSONToXML.convertJSONToDocument(dgi-e:FedoraUtils.getRawDatastreamDissemination($PID, @ID, concat($PROT, '://', $HOST, ':', $PORT, '/fedora'), $FEDORAUSER, $FEDORAPASS))"/>
             </xsl:apply-templates>
           </xsl:when>
-          <!-- non-xml managed datastreams...
-
-               Really, should probably only
-               handle the mimetypes supported by the "getDatastreamText" call:
-               https://github.com/fcrepo/gsearch/blob/master/FedoraGenericSearch/src/java/dk/defxws/fedoragsearch/server/TransformerToText.java#L185-L200
-          -->
 
           <!-- begin: islandora_solution_pack_oralhistories setup -->
           <xsl:when test="@CONTROL_GROUP='M' and @ID='TRANSCRIPT' and foxml:datastreamVersion[last()][@MIMETYPE='text/vtt']">  </xsl:when>
           <!-- end: islandora_solution_pack_oralhistories setup -->
 
+          <!-- non-xml managed datastreams...
+               Really, should probably only
+               handle the mimetypes supported by the "getDatastreamText" call:
+               https://github.com/fcrepo/gsearch/blob/master/FedoraGenericSearch/src/java/dk/defxws/fedoragsearch/server/TransformerToText.java#L185-L200
+          -->
           <xsl:when test="@CONTROL_GROUP='M' and foxml:datastreamVersion[last() and not(starts-with(@MIMETYPE, 'image') or starts-with(@MIMETYPE, 'audio') or starts-with(@MIMETYPE, 'video') or @MIMETYPE = 'application/pdf' or @MIMETYPE = 'application/octet-stream' or @MIMETYPE = 'application/mxf')]">
             <!-- TODO: should do something about mime type filtering
               text/plain should use the getDatastreamText extension because document will only work for xml docs
@@ -273,7 +272,6 @@
       <xsl:apply-templates select="foxml:datastream[@ID='EAC-CPF']/foxml:datastreamVersion[last()]/foxml:xmlContent//eaccpf:eac-cpf">
         <xsl:with-param name="pid" select="$PID"/>
       </xsl:apply-templates>
-
       <xsl:apply-templates mode="fjm" select="foxml:datastream[@ID='EAC-CPF']/foxml:datastreamVersion[last()]/foxml:xmlContent//eaccpf:eac-cpf">
         <xsl:with-param name="pid" select="$PID"/>
         <xsl:with-param name="suffix">_s</xsl:with-param>
@@ -321,3 +319,4 @@
   <xsl:template match="text()" mode="unindexFedoraObject"/>
   <xsl:template match="text()" mode="index_object_datastreams"/>
 </xsl:stylesheet>
+
