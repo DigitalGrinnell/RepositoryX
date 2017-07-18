@@ -301,6 +301,8 @@ javax.xml.transform.TransformerException: A relative location path was expected 
 ```
 At this point I started to comment out individual lines of foxmlToSolr.xslt, each time re-running the above command, but that didn't help identify where the exact problem is.  8^(
 
+But the conversation at https://groups.google.com/forum/#!topic/islandora/YD8SEdcWwTo holds the key.  In my case I was able to comment out the *slurp_XML_converted_JSON_to_solr.xslt* include and now it works without throwing lots of annoying messages!
+
 
 
 
