@@ -277,3 +277,30 @@ Check the basic properties file as needed be sure that:
 ```
 indexDir=${local.FEDORA_HOME}/solr/collection1/data/index 
 ```
+## Can these messages be ignored, and what do they mean?
+```
+INFO: [collection1] webapp=/solr path=/update params={} {add=[faulconer-art:5592 (1573276205029785600)]} 0 10
+SystemId Unknown; Line #12; Column #83; A relative location path was expected following the '/' or '//' token.
+SystemId Unknown; Line #12; Column #83; Extra illegal tokens: '$', 'root_node'
+Jul 18, 2017 10:51:49 AM org.apache.solr.update.processor.LogUpdateProcessor finish
+```
+As far as I can tell, these "SystemId Unknown" messages are a result of some bad XSLT xpaths and they can be ignored (even though they are extremely annoying!).
+
+## So how do I fix the issue above?
+Following advice from Jared Whiklo (see https://groups.google.com/forum/#!topic/islandora/YD8SEdcWwTo) I ran and received the following:
+
+```
+root@repositoryx:/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex# java -jar /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/lib/xalan.jar -XSL /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/foxmlToSolr.xslt
+
+SystemId Unknown; Line #12; Column #83; XSLT Error (javax.xml.transform.TransformerConfigurationException): javax.xml.transform.TransformerException: org.xml.sax.SAXException: A relative location path was expected following the '/' or '//' token.
+javax.xml.transform.TransformerException: A relative location path was expected following the '/' or '//' token.
+Exception in thread "main" java.lang.RuntimeException: javax.xml.transform.TransformerException: org.xml.sax.SAXException: A relative location path was expected following the '/' or '//' token.
+javax.xml.transform.TransformerException: A relative location path was expected following the '/' or '//' token.
+	at org.apache.xalan.xslt.Process.doExit(Process.java:1153)
+	at org.apache.xalan.xslt.Process.main(Process.java:1126)
+```
+At this point I started to comment out individual lines of foxmlToSolr.xslt, each time re-running the above command, but that didn't help identify where the exact problem is.  8^(
+
+
+
+
