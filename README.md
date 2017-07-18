@@ -277,3 +277,12 @@ Check the basic properties file as needed be sure that:
 ```
 indexDir=${local.FEDORA_HOME}/solr/collection1/data/index 
 ```
+## Can these messages be ignored, and what do they mean?
+```
+INFO: [collection1] webapp=/solr path=/update params={} {add=[faulconer-art:5592 (1573276205029785600)]} 0 10
+SystemId Unknown; Line #12; Column #83; A relative location path was expected following the '/' or '//' token.
+SystemId Unknown; Line #12; Column #83; Extra illegal tokens: '$', 'root_node'
+Jul 18, 2017 10:51:49 AM org.apache.solr.update.processor.LogUpdateProcessor finish
+```
+As far as I can tell, these "SystemId Unknown" messages are a result of some bad XSLT xpaths and they can be ignored (even though they are extremely annoying!).
+
