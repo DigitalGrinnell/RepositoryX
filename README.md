@@ -209,7 +209,6 @@ Clone the *basic-solr-config* repository and copy *foxmlToSolr.xslt* to your *$F
 cd /usr/local/fedora
 git clone https://github.com/discoverygarden/basic-solr-config.git
 git clone https://github.com/discoverygarden/islandora_transforms.git
-cd basic-solr-config
 cp -f basic-solr-config/foxmlToSolr.xslt $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
 cp -fr islandora_transforms/ $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
 cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex
