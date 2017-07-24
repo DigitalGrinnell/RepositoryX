@@ -223,6 +223,9 @@ fgsindex.uriResolver    = dk.defxws.fedoragsearch.server.URIResolverImpl
 
 If you keep Fedora or Tomcat in the non-default location, you will need to update each of the *.xslt files to reflect that as well.
 
+# Add Config Enabling Solr Search of OCR Datastreams (Book Pages)
+Follow the instructions at https://ficial.wordpress.com/2014/02/21/islandora-7-making-ocr-text-searchable-via-solr/.  Note that this change was NOT performed previously on RepositoryX.
+
 # Add Oral Histories XSLT
 The Islandora Oral Histories Solution Pack reqiures an XSLT be added to the *islandora_transforms* directory (that is /usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms).  To facilitate this follow the instructions at https://github.com/digitalutsc/islandora_solution_pack_oralhistories/wiki/Configuration:--Basic-Indexing-of-transcripts-in-Solr.  For example...
 
