@@ -6,7 +6,9 @@
  The ASF licenses this file to You under the Apache License, Version 2.0
  (the "License"); you may not use this file except in compliance with
  the License.  You may obtain a copy of the License at
+
      http://www.apache.org/licenses/LICENSE-2.0
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +34,7 @@
 
  This example schema is the recommended starting point for users.
  It should be kept correct and concise, usable out-of-the-box.
+
  For more information, on how to customize this file, please see
  http://wiki.apache.org/solr/SchemaXml
 -->
@@ -112,8 +115,10 @@
          The trailing "Z" designates UTC time and is mandatory.
          Optional fractional seconds are allowed: 1995-12-31T23:59:59.999Z
          All other components are mandatory.
+
          Expressions can also be used to denote calculations that should be
          performed relative to "NOW" to determine the value, ie...
+
                NOW/HOUR
                   ... Round to the start of the current hour
                NOW-1DAY
@@ -121,6 +126,7 @@
                NOW/DAY+6MONTHS+3DAYS
                   ... 6 months and 3 days in the future from the start of
                       the current day
+
          Consult the DateField javadocs for more information.
       -->
     <fieldType name="date" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
@@ -128,9 +134,11 @@
     <!-- solr.TextField allows the specification of custom text analyzers
          specified as a tokenizer and a list of token filters. Different
          analyzers may be specified for indexing and querying.
+
          The optional positionIncrementGap puts space between multiple fields of
          this type on the same document, with the purpose of preventing false phrase
          matching across fields.
+
          For more info on customizing your analyzer chain, please see
          http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters
      -->
@@ -188,7 +196,6 @@
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
-
 
     <!-- Less flexible matching, but less false matches.  Probably not ideal for product names,
          but may be good for SKUs.  Can insert dashes in the wrong place and still match. -->
@@ -275,14 +282,35 @@
         <!-- The PatternReplaceFilter gives you the flexibility to use
              Java Regular expression to replace any sequence of characters
              matching a pattern with an arbitrary replacement string,
-             which may include back refrences to portions of the orriginal
+             which may include back refrences to portions of the original
              string matched by the pattern.
+
              See the Java Regular Expression documentation for more
              infomation on pattern and replacement string syntax.
+
              http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/package-summary.html
+
           -->
         <filter class="solr.PatternReplaceFilterFactory" pattern="([^a-z])" replacement="" replace="all" />
       </analyzer>
+    </fieldType>
+
+    <!-- coverage and year carryover from d6-->
+    <fieldType name="coverage" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+		    <tokenizer class="solr.KeywordTokenizerFactory"/>
+		    <filter class="solr.TrimFilterFactory"/>
+		    <!-- Replace yyyy-mm-dd or yyyy-mm dates with yyyy -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(-?\d{4})(-\d{2})?(-\d{2})?.*" replacement="$1" replace="first"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="year" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+       <analyzer>
+             <tokenizer class="solr.KeywordTokenizerFactory"/>
+             <filter class="solr.TrimFilterFactory"/>
+             <filter class="solr.PatternReplaceFilterFactory" pattern="^(-?\d{4})?.*" replacement="$1" replace="first"/>
+       </analyzer>
     </fieldType>
 
     <!-- since fields of this type are by default not stored or indexed, any data added to
@@ -302,6 +330,9 @@
 
 
  <fields>
+   <!-- Adding the following _version_ field per https://github.com/discoverygarden/basic-solr-config/wiki/Guide-to-Setting-up-GSearch-2.7-with-Solr-4.2.0. -->
+   <field name="_version_" type="long" indexed="true" stored="true"/>  <!-- MAM added from repository7 schema -->
+   
    <!-- Valid attributes for fields:
      name: mandatory - the name for the field
      type: mandatory - the name of a previously defined type from the <types> section
@@ -320,9 +351,6 @@
 
    <field name="PID_kw" type="text_keyword" indexed="true" stored="true" multiValued="false"/>
   
-   <!-- Adding the following _version_ field per https://github.com/discoverygarden/basic-solr-config/wiki/Guide-to-Setting-up-GSearch-2.7-with-Solr-4.2.0. -->
-   <field name="_version_" type="long" indexed="true" stored="true"/>
-
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
    <field name="catch_all_fields_mt" type="text" indexed="true" stored="false" multiValued="true"/>
@@ -370,6 +398,29 @@
    <field name="dc.description" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
 
+   <!-- begin: islandora_solution_pack_oralhistories setup -->
+   <dynamicField name="or_*" type="text" indexed="true" stored="true" multiValued="true"/>
+   <!-- end: islandora_solution_pack_oralhistories setup -->
+
+   <!-- start section for untokenized facet/advanced search fields/sorting 
+     (DC/MODS only - NEED TO EDIT GSEARCH for addtional schema 
+     [see https://wiki.duraspace.org/display/ISLANDORA714/Customizing+GSearch+and+Solr for more information])
+   -->
+
+   <field name="dc.contributor" type="text" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.contributor_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/>
+   <copyField source="dc.contributor" dest="dc.contributor_s"/>
+
+   <field name="dc.creator" type="text" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.creator_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/>
+   <copyField source="dc.creator" dest="dc.creator_s"/>
+   <copyField source="dc.creator_s" dest="dc.contributor_s"/>
+   <copyField source="dc.creator" dest="dc.contributor"/>
+
+   <field name="dc.date" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.date_s" type="year" maxChars="300" indexed="true" stored="true" multiValued="true"/>
+   <copyField source="dc.date" dest="dc.date_s"/>
+
    <!-- MAM adding the following as a work-around for our BCE dates sorting issue.  With this addition dateCreated must be convertible to a signed integer! -->
    <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/> 
    <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>
@@ -379,9 +430,38 @@
    <field name="mods_index_year" type="sortableIndexYear" indexed="true" stored="true" multiValued="false"/> 
    <field name="mods_index_text" type="sortableIndexText" indexed="true" stored="true" multiValued="false"/> --> 
 
-   <!-- begin: islandora_solution_pack_oralhistories setup -->
-   <dynamicField name="or_*" type="text" indexed="true" stored="true" multiValued="true"/>
-   <!-- end: islandora_solution_pack_oralhistories setup -->
+   <field name="dc.coverage" type="text" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.coverage_s" type="string" indexed="true" stored="true" multiValued="true"/>
+   <copyField source="dc.coverage" dest="dc.coverage_s"/>
+   <copyField source="mods_subject_temporal_ms" dest="dc.coverage_s"/>
+   <copyField source="mods_subject_geographic_ms" dest="dc.coverage_s"/>
+
+   <field name="dc.relation_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.relation" type="text" indexed="true" stored="true" multiValued="true"/>
+   <copyField source="mods_relatedItem_isPartOf_titleInfo_title_ms" dest="dc.relation_s"/>
+   <copyField source="mods_relatedItem_isPartOfSeries_titleInfo_title_ms" dest="dc.relation_s"/>
+
+   <field name="dc.title" type="text" indexed="true" stored="true" multiValued="true"/>
+   <field name="mods_titleInfo_title_ms" type="string" indexed="true" stored="true" multiValued="false"/>
+
+   <!-- MAM removing three dg_*_s fields below as they are no longer effective in RepositoryX (and I'm not sure why)
+        These fields have all been replaced by equivalent, and working, mods_extension_*_ss fields.  October 12, 2017 -->
+
+   <!-- MAM adding dg_primarySort_s field (transformed from /mods/extension/primarySort) to support collection view sorting 
+   <field name="dg_primarySort_s" type="string" indexed="true" stored="true" multiValued="false"/>
+   <copyField source="mods_extension_primarySort_ms" dest="dg_primarySort_s"/> -->
+
+   <!-- MAM adding dg_creators field (transformed from /mods/extension/creators) to support collection view presentation and sorting 
+   <field name="dg_creators_s" type="string" indexed="true" stored="true" multiValued="false"/>
+   <copyField source="mods_extension_creators_ms" dest="dg_creators_s"/> -->
+
+   <!-- MAM adding dg_hidden_creators field (transformed from /mods/extension/hidden_creators) to support collection view sorting 
+   <field name="dg_hidden_creators_s" type="string" indexed="true" stored="true" multiValued="false"/>
+   <copyField source="mods_extension_hidden_creators_ms" dest="dg_hidden_creators_s"/> -->
+
+   <!-- adding dc.title_mlt field for autocomplete for subjects/entities-->
+   <field name="dc.title_mlt" type="mappedLowerText" indexed="true" stored="true" multiValued="true"/>
+   <copyField source="MADS_title_ms" dest="dc.title_mlt"/>
 
  </fields>
 
