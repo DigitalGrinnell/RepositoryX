@@ -24,10 +24,6 @@
 
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
- Note: On dgdocker1 this file is
-        /home/islandora/solr/collection1/conf/schema.xml, and that maps into the isle-solr-dg container as 
-	/usr/local/solr/collection1/conf/schema.xml
-
  Note: In repositoryX this file is
          /usr/local/fedora/solr/collection1/conf/schema.xml
 
@@ -236,11 +232,11 @@
       </analyzer>
     </fieldType>
 
-    <!-- MAM additions here...FAILED  Aim is to produce an index_date field guaranteed to contain only a 4-digit integer preceeded by an optional minus sign.
+    <!-- MAM additions here...FAILED  Aim is to produce an index_date field guaranteed to contain only a 4-digit integer preceeded by an optional minus sign. 
     <fieldType name="sortableIndexYear" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
     <fieldType name="sortableIndexText" class="solr.TextField">
       <analyzer>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/> 
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.PatternReplaceFilterFactory" pattern="^(\d).*$" replacement="$1"/>
       </analyzer>
@@ -336,7 +332,7 @@
  <fields>
    <!-- Adding the following _version_ field per https://github.com/discoverygarden/basic-solr-config/wiki/Guide-to-Setting-up-GSearch-2.7-with-Solr-4.2.0. -->
    <field name="_version_" type="long" indexed="true" stored="true"/>  <!-- MAM added from repository7 schema -->
-
+   
    <!-- Valid attributes for fields:
      name: mandatory - the name for the field
      type: mandatory - the name of a previously defined type from the <types> section
@@ -354,7 +350,7 @@
    <field name="PID" type="string" indexed="true" stored="true" required="true"/>
 
    <field name="PID_kw" type="text_keyword" indexed="true" stored="true" multiValued="false"/>
-
+  
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
    <field name="catch_all_fields_mt" type="text" indexed="true" stored="false" multiValued="true"/>
@@ -363,10 +359,6 @@
         When each document was indexed.
      -->
    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
-
-   <!-- 23-Aug-2018  Adding a specific dateCreated 'date' type field here.  See corresponding change to dynamic fields below
-   This change does NOT appear to solve the immediate problem so it's being removed.
-   <field name="dateCreated_dt" type="date" indexed="true" stored="true" multiValued="false"/>  -->
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
@@ -394,13 +386,8 @@
    <dynamicField name="*_mf"  type="sfloat"  indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_d"  type="sdouble" indexed="true"  stored="true"/>
    <dynamicField name="*_md"  type="sdouble" indexed="true"  stored="true" multiValued="true"/>
-<!-- Two dynamic date fields below changed to string to avoid index warnings for invalid date text   23-Aug-2018
-This change does NOT appear to solve the immediate problem so it's being removed. -->
    <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
-   <dynamicField name="*_mdt" type="date"    indexed="true"  stored="true" multiValued="true"/>  -->
-   <!-- See comment above...
-   <dynamicField name="*_dt" type="string"    indexed="true"  stored="true"/>
-   <dynamicField name="*_mdt" type="string"    indexed="true"  stored="true" multiValued="true"/> -->
+   <dynamicField name="*_mdt" type="date"    indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_et" type="edgedText" indexed="true" stored="true" multiValued="true"/>
    <dynamicField name="*_mlt" type="mappedLowerText" indexed="true" stored="true" multiValued='false'/>
 
@@ -415,36 +402,33 @@ This change does NOT appear to solve the immediate problem so it's being removed
    <dynamicField name="or_*" type="text" indexed="true" stored="true" multiValued="true"/>
    <!-- end: islandora_solution_pack_oralhistories setup -->
 
-   <!-- start section for untokenized facet/advanced search fields/sorting
-     (DC/MODS only - NEED TO EDIT GSEARCH for addtional schema
+   <!-- start section for untokenized facet/advanced search fields/sorting 
+     (DC/MODS only - NEED TO EDIT GSEARCH for addtional schema 
      [see https://wiki.duraspace.org/display/ISLANDORA714/Customizing+GSearch+and+Solr for more information])
    -->
 
    <field name="dc.contributor" type="text" indexed="true" stored="true" multiValued="true"/>
-   <!-- <field name="dc.contributor_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/> -->
-   <field name="dc.contributor_s" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.contributor_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/>
    <copyField source="dc.contributor" dest="dc.contributor_s"/>
 
    <field name="dc.creator" type="text" indexed="true" stored="true" multiValued="true"/>
-   <!-- <field name="dc.creator_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/> -->
-   <field name="dc.creator_s" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.creator_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/>
    <copyField source="dc.creator" dest="dc.creator_s"/>
    <copyField source="dc.creator_s" dest="dc.contributor_s"/>
    <copyField source="dc.creator" dest="dc.contributor"/>
 
    <field name="dc.date" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
-   <!-- <field name="dc.date_s" type="year" maxChars="300" indexed="true" stored="true" multiValued="true"/> -->
-   <field name="dc.date_s" type="year" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.date_s" type="year" maxChars="300" indexed="true" stored="true" multiValued="true"/>
    <copyField source="dc.date" dest="dc.date_s"/>
 
    <!-- MAM adding the following as a work-around for our BCE dates sorting issue.  With this addition dateCreated must be convertible to a signed integer! -->
-   <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/>
+   <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/> 
    <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>
 
    <!-- MAM adding the following as a work-around for our BCE dates sorting issue.  FAILED!
-   <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>
-   <field name="mods_index_year" type="sortableIndexYear" indexed="true" stored="true" multiValued="false"/>
-   <field name="mods_index_text" type="sortableIndexText" indexed="true" stored="true" multiValued="false"/> -->
+   <field name="mods_originInfo_dateCreated_sort" type="sint" indexed="true" stored="true" multiValued="false"/>  
+   <field name="mods_index_year" type="sortableIndexYear" indexed="true" stored="true" multiValued="false"/> 
+   <field name="mods_index_text" type="sortableIndexText" indexed="true" stored="true" multiValued="false"/> --> 
 
    <field name="dc.coverage" type="text" indexed="true" stored="true" multiValued="true"/>
    <field name="dc.coverage_s" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -452,8 +436,7 @@ This change does NOT appear to solve the immediate problem so it's being removed
    <copyField source="mods_subject_temporal_ms" dest="dc.coverage_s"/>
    <copyField source="mods_subject_geographic_ms" dest="dc.coverage_s"/>
 
-   <!-- <field name="dc.relation_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/> -->
-   <field name="dc.relation_s" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="dc.relation_s" type="string" maxChars="300" indexed="true" stored="true" multiValued="true"/>
    <field name="dc.relation" type="text" indexed="true" stored="true" multiValued="true"/>
    <copyField source="mods_relatedItem_isPartOf_titleInfo_title_ms" dest="dc.relation_s"/>
    <copyField source="mods_relatedItem_isPartOfSeries_titleInfo_title_ms" dest="dc.relation_s"/>
@@ -464,15 +447,15 @@ This change does NOT appear to solve the immediate problem so it's being removed
    <!-- MAM removing three dg_*_s fields below as they are no longer effective in RepositoryX (and I'm not sure why)
         These fields have all been replaced by equivalent, and working, mods_extension_*_ss fields.  October 12, 2017 -->
 
-   <!-- MAM adding dg_primarySort_s field (transformed from /mods/extension/primarySort) to support collection view sorting
+   <!-- MAM adding dg_primarySort_s field (transformed from /mods/extension/primarySort) to support collection view sorting 
    <field name="dg_primarySort_s" type="string" indexed="true" stored="true" multiValued="false"/>
    <copyField source="mods_extension_primarySort_ms" dest="dg_primarySort_s"/> -->
 
-   <!-- MAM adding dg_creators field (transformed from /mods/extension/creators) to support collection view presentation and sorting
+   <!-- MAM adding dg_creators field (transformed from /mods/extension/creators) to support collection view presentation and sorting 
    <field name="dg_creators_s" type="string" indexed="true" stored="true" multiValued="false"/>
    <copyField source="mods_extension_creators_ms" dest="dg_creators_s"/> -->
 
-   <!-- MAM adding dg_hidden_creators field (transformed from /mods/extension/hidden_creators) to support collection view sorting
+   <!-- MAM adding dg_hidden_creators field (transformed from /mods/extension/hidden_creators) to support collection view sorting 
    <field name="dg_hidden_creators_s" type="string" indexed="true" stored="true" multiValued="false"/>
    <copyField source="mods_extension_hidden_creators_ms" dest="dg_hidden_creators_s"/> -->
 
@@ -509,7 +492,7 @@ This change does NOT appear to solve the immediate problem so it's being removed
 <copyField source="*_mdt" dest="*_mt"/>
 <copyField source="PID" dest="PID_kw"/>
 
-<!-- <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/> -->  <!-- NOT working for all objects -->
+<!-- <copyField source="mods_originInfo_dateCreated_s" dest="mods_originInfo_dateCreated_sort"/> -->  <!-- NOT working for all objects --> 
 <!-- <copyField source="mods_originInfo_dateCreated_s" dest="mods_index_year"/> -->  <!-- As above, not working for all objects -->
 <copyField source="mods_originInfo_dateCreated_s" dest="mods_index_text"/>
 
