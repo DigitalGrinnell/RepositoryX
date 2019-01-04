@@ -1,3 +1,7 @@
+| Important! |
+|---|
+| In early January 2019 a new `ISLE-ld` branch of this project was created and files in this branch reflect those that should be present in any/all new *ISLE* instances of Digital Grinnell.  See the `ISLE-ld` sections at the end of this document for details. |
+
 This Github repo is a collection of key configuration files from Digital Grinnell's FEDORA repository (currently RepositoryX) server and the /usr/local/fedora/solr/collection1/conf directory, and others, found on that server. Solr and FedoraGSearch were initially upgraded to this configruation on RepositoryX in late-June and early-July 2017 following the process documented below.  The procedural portion of this document is a reflection of https://github.com/discoverygarden/basic-solr-config/wiki/Guide-to-Setting-up-GSearch-2.7-with-Solr-4.2.0, but with added detail and targeting upgrade to Solr version 4.2.1 rather than 4.2.0.
 
 # Now in Production!
@@ -17,7 +21,7 @@ git clone https://github.com/DigitalGrinnell/RepositoryX.git /usr/local/fedora/.
 
 # Install Solr 4.2.1
 
-Stop Fedora by stopping Tomcat. 
+Stop Fedora by stopping Tomcat.
 ```
 service tomcat stop
 ```
@@ -31,7 +35,7 @@ rm -fr /usr/local/fedora/tomcat/webapps/fedoragsearch*
 mv -f /usr/local/fedora/tomcat/work/ /usr/local/fedora/tomcat/.out-of-the-way/    # just a precaution
 ```
 
-Download [Solr 4.2.1](http://archive.apache.org/dist/lucene/solr/4.2.1/solr-4.2.1.tgz) to /opt 
+Download [Solr 4.2.1](http://archive.apache.org/dist/lucene/solr/4.2.1/solr-4.2.1.tgz) to /opt
 ```
 cd /opt
 wget http://archive.apache.org/dist/lucene/solr/4.2.1/solr-4.2.1.tgz
@@ -66,7 +70,7 @@ Goto to your solr conf directory and backup schema.xml in case any problems occu
 
 ```
 cd $FEDORA_HOME/solr/collection1/conf
-cp schema.xml schema.xml.bak 
+cp schema.xml schema.xml.bak
 rm -f schema.xml
 cp -f /usr/local/fedora/.configuration/schema.xml .
 ```
@@ -112,7 +116,7 @@ Changed the version of the schema from 1.1 to version 1.5 which includes these c
 Also Added the following field to the schema.
 
 ```
-<field name="_version_" type="long" indexed="true" stored="true"/> 
+<field name="_version_" type="long" indexed="true" stored="true"/>
 ```
 
 # Update the solrconfig.xml
@@ -122,14 +126,14 @@ Also Added the following field to the schema.
 Goto to your solr conf directory and backup the existing solrconfig.xml just in case.  
 ```
 cd $FEDORA_HOME/solr/collection1/conf
-cp solrconfig.xml solrconfig.xml.bak 
+cp solrconfig.xml solrconfig.xml.bak
 ```
 Tell solr that we want changes to be flushed and make changes available right away
 ```
 sed -i 's|<openSearcher>false</openSearcher>|<openSearcher>true</openSearcher>|g' solrconfig.xml
 ```
 Increase the size of the cache
-``` 
+```
 sed -i 's|<queryResultWindowSize>20</queryResultWindowSize>|<queryResultWindowSize>50</queryResultWindowSize>|g' solrconfig.xml
 ```
 Enable backwards compatibility
@@ -175,7 +179,7 @@ Navigate to $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig and backup the b
 
 ```
 cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig
-cp fgsconfig-basic.properties fgsconfig-basic.properties.bak 
+cp fgsconfig-basic.properties fgsconfig-basic.properties.bak
 cp -fr configDemoOnSolr/ configDGOnSolr/
 chown -R fedora:fedora *
 ```
@@ -187,15 +191,15 @@ Important!!! Modify the fedoraPass variable definition in the live copy of the f
 
 ```
 configDisplayName=configDGOnSolr
-local.FEDORA_HOME=/usr/local/fedora 
+local.FEDORA_HOME=/usr/local/fedora
 indexEngine=Solr
 indexDir=${local.FEDORA_HOME}/solr/collection1/data/index
-indexBase=http://localhost:8080/solr 
+indexBase=http://localhost:8080/solr
 indexingDocXslt=foxmlToSolr
 fedoraPass=<Place your password in the live copy ONLY!>
 ```
 
-Run the following commands: 
+Run the following commands:
 
 ```
 ant generateIndexingXslt
@@ -271,7 +275,7 @@ rm -fr .out-of-the-way/
 Please read over sort out this issue see [Install GSearch](#install-gsearch-26)
 
 ```
-cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig 
+cd $FEDORA_HOME/tomcat/webapps/fedoragsearch/FgsConfig
 ant generateIndexingXslt
 ant -f fgsconfig-basic.xml
 ```
@@ -284,7 +288,7 @@ Thu Oct 03 13:33:09 UTC 2013 IndexReader open error indexName=FgsIndex : ; neste
 Check the basic properties file as needed be sure that:
 
 ```
-indexDir=${local.FEDORA_HOME}/solr/collection1/data/index 
+indexDir=${local.FEDORA_HOME}/solr/collection1/data/index
 ```
 ## Can these messages be ignored, and what do they mean?
 ```
@@ -312,6 +316,6 @@ At this point I started to comment out individual lines of foxmlToSolr.xslt, eac
 
 But the conversation at https://groups.google.com/forum/#!topic/islandora/YD8SEdcWwTo holds the key.  In my case I was able to comment out the *slurp_XML_converted_JSON_to_solr.xslt* include and now it works without throwing lots of annoying messages!
 
+# ISLE-ld
 
-
-
+As mentioned in the note at the top of this document...  In January 2019 the `ISLE-ld` branch of this project was created and populated with versions of critical files as they should appear in any/all *ISLE* instances of Digital Grinnell.
